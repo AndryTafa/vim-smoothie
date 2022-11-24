@@ -2,16 +2,16 @@
 let smoothie#default_commands = ['<C-D>', '<C-U>', '<C-F>', '<S-Down>', '<PageDown>', '<C-B>', '<S-Up>', '<PageUp>', 'z+', 'z^', 'zt', 'z<CR>', 'z.', 'zz', 'z-', 'zb']
 let smoothie#experimental_commands = ['gg', 'G', 'n', 'N', '#', '*', 'g*', 'g#']
 
-function s:editor_supports_fast_redraw()
+function! s:editor_supports_fast_redraw() abort
   " Currently enabled only for Neovim, because it causes screen flickering on
   " regular Vim.
   return has('nvim')
 endfunction
 
-function s:terminal_supports_fast_redraw()
+function! s:terminal_supports_fast_redraw() abort
   " Currently only Kitty is known not to cause any flickering when calling
   " `:mode`.
-  return $TERM == 'xterm-kitty'
+  return $TERM ==# 'xterm-kitty'
 endfunction
 
 ""
@@ -67,7 +67,7 @@ let s:animated_view_elements = ['lnum', 'topline']
 ""
 " Start the animation timer if not already running.  Should be called when
 " updating the target, when there's a chance we're not already moving.
-function s:start_moving()
+function! s:start_moving() abort
   call s:ensure_subline_progress_view_initialized()
   if !exists('s:timer_id')
     let s:timer_id = timer_start(g:smoothie_update_interval, function('s:animation_tick'), {'repeat': -1})
@@ -75,7 +75,7 @@ function s:start_moving()
   endif
 endfunction
 
-function s:ensure_subline_progress_view_initialized()
+function! s:ensure_subline_progress_view_initialized() abort
   if empty(s:subline_progress_view)
     for key in s:animated_view_elements
       let s:subline_progress_view[key] = 0.0
@@ -86,7 +86,7 @@ endfunction
 ""
 " Ensure the window and the cursor is positioned at their final destinations,
 " and disable the animation timer to conserve power.
-function s:finish_moving()
+function! s:finish_moving() abort
   call winrestview(s:target_view)
   if g:smoothie_redraw_at_finish
     mode
@@ -100,9 +100,23 @@ function s:finish_moving()
 endfunction
 
 ""
+" Skip animation and jump to target position immediately if we're moving and
+" the user is about to leave the window or switch to a different buffer.
+function! s:handle_leave_event() abort
+  if !empty(s:target_view)
+    call s:finish_moving()
+  endif
+endfunction
+
+augroup smoothie_leave_handlers
+  autocmd!
+  autocmd WinLeave,BufLeave * call s:handle_leave_event()
+augroup end
+
+""
 " TODO: current algorithm is rather crude, would be good to research better
 " alternatives.
-function s:compute_velocity_element(target_distance_element)
+function! s:compute_velocity_element(target_distance_element) abort
   let l:absolute_speed = g:smoothie_speed_constant_factor + g:smoothie_speed_linear_factor * pow(abs(a:target_distance_element), g:smoothie_speed_exponentiation_factor)
   if a:target_distance_element < 0
     return -l:absolute_speed
@@ -111,7 +125,7 @@ function s:compute_velocity_element(target_distance_element)
   endif
 endfunction
 
-function s:compute_target_distance()
+function! s:compute_target_distance() abort
   let l:result = {}
   for [key, value] in items(s:filter_dict(winsaveview(), s:animated_view_elements))
     let l:result[key] = s:target_view[key] - value - s:subline_progress_view[key]
@@ -119,7 +133,7 @@ function s:compute_target_distance()
   return l:result
 endfunction
 
-function s:compute_velocity(target_distance)
+function! s:compute_velocity(target_distance) abort
   let l:result = {}
   for [key, value] in items(a:target_distance)
     let l:result[key] = s:compute_velocity_element(value)
@@ -127,7 +141,7 @@ function s:compute_velocity(target_distance)
   return l:result
 endfunction
 
-function s:compute_animation_step(target_distance, step_duration)
+function! s:compute_animation_step(target_distance, step_duration) abort
   let l:result = {}
   for [key, value] in items(s:compute_velocity(a:target_distance))
     let l:result[key] = value * a:step_duration
@@ -139,7 +153,7 @@ function s:compute_animation_step(target_distance, step_duration)
   return l:result
 endfunction
 
-function s:filter_dict(source, persisted_keys)
+function! s:filter_dict(source, persisted_keys) abort
   let l:result = {}
   for key in a:persisted_keys
     let l:result[key] = a:source[key]
@@ -147,7 +161,57 @@ function s:filter_dict(source, persisted_keys)
   return result
 endfunction
 
-function s:perform_animation_step(step_duration)
+""
+" Equivalent to winrestview(), but tries to avoid actually calling
+" winrestview() and tries to restore the view using normal mode commands if
+" possible.  This improves redraw smoothness and minimises glitches,
+" especially on slow terminals.
+function! s:winrestview_optimized(new_view) abort
+  for key in ['topline', 'lnum']
+    let l:distance = a:new_view[key] - winsaveview()[key]
+    if l:distance == 0
+      continue
+    endif
+    if key ==# 'topline'
+      if l:distance > 0
+        execute 'normal! ' . l:distance . "\<C-E>"
+      else
+        execute 'normal! ' . -l:distance . "\<C-Y>"
+      endif
+    elseif key ==# 'lnum'
+      if l:distance > 0
+        execute 'normal! ' . l:distance . 'j'
+      else
+        execute 'normal! ' . -l:distance . 'k'
+      endif
+    endif
+  endfor
+  let l:view_after_optimization = s:filter_dict(winsaveview(), keys(a:new_view))
+  let l:remaining_view_changes = {}
+  for [key, value] in items(view_after_optimization)
+    if a:new_view[key] != value
+      let l:remaining_view_changes[key] = a:new_view[key]
+    endif
+  endfor
+  if !empty(l:remaining_view_changes)
+    call winrestview(l:remaining_view_changes)
+  endif
+endfunction
+
+""
+" Stop moving and jump to target immediately if we detect the animation is
+" stuck. This is a workaround to partially mitigate
+" https://github.com/psliwka/vim-smoothie/issues/40
+function! s:abort_if_stuck(desired_new_position) abort
+  let l:current_position = s:filter_dict(winsaveview(), s:animated_view_elements)
+  for key in s:animated_view_elements
+    if l:current_position[key] != a:desired_new_position[key]
+      call s:finish_moving()
+    endif
+  endfor
+endfunction
+
+function! s:perform_animation_step(step_duration) abort
   let l:target_distance = s:compute_target_distance()
   let l:new_position = s:filter_dict(winsaveview(), s:animated_view_elements)
   let l:animation_step = s:compute_animation_step(l:target_distance, a:step_duration)
@@ -164,14 +228,15 @@ function s:perform_animation_step(step_duration)
     endif
     let s:subline_progress_view[key] += value - l:integer_step_size
   endfor
-  call winrestview(l:new_position)
+  call s:winrestview_optimized(l:new_position)
+  call s:abort_if_stuck(l:new_position)
   return l:finished_moving
 endfunction
 
 ""
 " Execute single animation frame.  Called periodically by a timer.  Accepts a
 " throwaway parameter: the timer ID.
-function s:animation_tick(_)
+function! s:animation_tick(_) abort
   let l:current_step_duration = reltimefloat(reltime(s:last_tick_time))
   let s:last_tick_time = reltime()
   let l:finished_moving = s:perform_animation_step(l:current_step_duration)
@@ -180,12 +245,12 @@ function s:animation_tick(_)
   endif
 endfunction
 
-function s:update_target(command)
+function! s:update_target(command, count) abort
   let l:current_view = winsaveview()
   if !empty(s:target_view)
     call winrestview(s:target_view)
   endif
-  execute 'normal! ' . (v:count ? v:count : '') . a:command
+  execute 'normal! ' . a:count . a:command
   let s:target_view = winsaveview()
   call winrestview(l:current_view)
   return [v:hlsearch, @/, v:searchforward]
@@ -194,8 +259,13 @@ endfunction
 function smoothie#do(command)
   let l:search = [v:hlsearch, @/, v:searchforward]
   try
+    if v:count == 0
+      let l:count = ''
+    else
+      let l:count = v:count
+    endif
     if g:smoothie_enabled
-      let l:search = s:update_target(a:command)
+      let l:search = s:update_target(a:command, l:count)
       call s:start_moving()
     else
       execute 'normal! ' . (v:count ? v:count : '') . a:command
@@ -211,16 +281,16 @@ endfunction
 
 ""
 " Old interface kept for backward compatibility with legacy configurations
-function smoothie#downwards()
+function! smoothie#downwards() abort
   call smoothie#do("\<C-D>")
 endfunction
-function smoothie#upwards()
+function! smoothie#upwards() abort
   call smoothie#do("\<C-U>")
 endfunction
-function smoothie#forwards()
+function! smoothie#forwards() abort
   call smoothie#do("\<C-F>")
 endfunction
-function smoothie#backwards()
+function! smoothie#backwards() abort
   call smoothie#do("\<C-B>")
 endfunction
 
