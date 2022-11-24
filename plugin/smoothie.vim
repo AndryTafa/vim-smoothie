@@ -37,19 +37,11 @@ if !exists('g:smoothie_no_default_mappings')
   " If true, will prevent the plugin from remapping default scrolling keys
   let g:smoothie_no_default_mappings = v:false
 endif
-if !exists('g:smoothie_experimental_mappings')
-  ""
-  " Set this to true to enable additional, experimental mappings (currently `gg` and `G`).
-  let g:smoothie_experimental_mappings = v:false
-endif
 if !exists('g:smoothie_remapped_commands')
   ""
   " List of commands which smoothened alternatives will be mapped for
   if !g:smoothie_no_default_mappings
     let g:smoothie_remapped_commands = smoothie#default_commands
-    if g:smoothie_experimental_mappings
-      let g:smoothie_remapped_commands += smoothie#experimental_commands
-    endif
   else
     let g:smoothie_remapped_commands = []
   endif

@@ -2,10 +2,12 @@ About This Fork
 ==================================================
 This is a forked version containing:
 * Merged upstream
-* Changes from toombs-caeman's branch (`n`, `N` support)
+* Changes from toombs-caeman's branch (`n`, `N` smooth scrolling)
 * Option to hide cursor
-* Animating extra commands: `H`, `M`, `L`, `{`, `}`
-* Animating `j` and `k` when prefixed with a number
+* Smooth scrolling extra commands: `H`, `M`, `L`, `{`, `}`
+* Smooth scrolling with the Scroll Wheel
+* Smooth scrolling `j` and `k` when prefixed with a number
+* Remove "experimental" option
 * Updated README
 
 vim-smoothie: Smooth scrolling for Vim done right🥤
@@ -59,8 +61,8 @@ adjusting one or more of the following variables in your `vimrc`:
   overriding this list with a subset of commands that you'd like to map.
   Alternatively, you can add extra commands here if you fell extra adventurous
   ;)
-* `g:smoothie_experimental_mappings`: Set this to true to enable additional,
-  experimental mappings (`gg`, `G`, `n`, `N`). Give them a try!
+
+  Default list of enabled mappings: `['<C-D>', '<C-U>', '<C-F>', '<S-Down>', '<PageDown>', '<C-B>', '<S-Up>', '<PageUp>', 'z+', 'z^', 'zt', 'z<CR>', 'z.', 'zz', 'z-', 'zb', 'H', 'M', 'L', '{', '}', 'j', 'k', '<ScrollWheelDown>', '<ScrollWheelUp>', 'gg', 'G', 'n', 'N', '#', '*', 'g*', 'g#']`
 * `g:smoothie_hide_cursor`: (default: `1`) Hide the cursor while scrolling.
 
 The following options were originally removed from the README by psliwka [#22](https://github.com/psliwka/vim-smoothie/issues/22):
