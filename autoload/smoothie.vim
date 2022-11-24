@@ -10,13 +10,13 @@ augroup END
 highlight SmoothieHiddenCursor gui=reverse blend=100
 
 function! s:hide_cursor() abort
-  if &termguicolors && &guicursor !~# "a:SmoothieHiddenCursor"
+  if &termguicolors && &guicursor !~# 'a:SmoothieHiddenCursor'
     let s:guicursor=&guicursor
     set guicursor=a:SmoothieHiddenCursor
   endif
 endfunction
 function! s:unhide_cursor() abort
-  if &guicursor == "a:SmoothieHiddenCursor"
+  if &guicursor ==# 'a:SmoothieHiddenCursor'
     let &guicursor=s:guicursor
   endif
 endfunction
