@@ -1,5 +1,5 @@
 
-let smoothie#default_commands = ['<C-D>', '<C-U>', '<C-F>', '<S-Down>', '<PageDown>', '<C-B>', '<S-Up>', '<PageUp>', 'z+', 'z^', 'zt', 'z<CR>', 'z.', 'zz', 'z-', 'zb', 'H', 'M', 'L', '{', '}']
+let smoothie#default_commands = ['<C-D>', '<C-U>', '<C-F>', '<S-Down>', '<PageDown>', '<C-B>', '<S-Up>', '<PageUp>', 'z+', 'z^', 'zt', 'z<CR>', 'z.', 'zz', 'z-', 'zb', 'H', 'M', 'L', '{', '}', 'j', 'k']
 let smoothie#experimental_commands = ['gg', 'G', 'n', 'N', '#', '*', 'g*', 'g#']
 
 " Highlight group to hide the cursor
@@ -95,7 +95,7 @@ let s:animated_view_elements = ['lnum', 'topline']
 " updating the target, when there's a chance we're not already moving.
 function! s:start_moving() abort
   call s:ensure_subline_progress_view_initialized()
-  if g:smoothie_hide_cursor == 1
+  if g:smoothie_hide_cursor ==# 1
     call s:hide_cursor()
   endif
   if !exists('s:timer_id')
@@ -296,7 +296,8 @@ function! smoothie#do(command) abort
     else
       let l:count = v:count
     endif
-    if g:smoothie_enabled
+    " Only act on j and k when prefixed with a count
+    if g:smoothie_enabled && ((a:command !~# 'j' && a:command !~# 'k') || l:count > 1)
       let l:search = s:update_target(a:command, l:count)
       call s:start_moving()
     else
