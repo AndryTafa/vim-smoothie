@@ -1,4 +1,4 @@
-This is a forked version, containing changes from toombs-caeman's branch (namely `n`, `N` support), merged upstream and an updated README.
+This is a forked version, containing changes from toombs-caeman's branch (namely `n`, `N` support), option to hide cursor, merged upstream and an updated README.
 
 vim-smoothie: Smooth scrolling for Vim done right🥤
 ===================================================
