@@ -1,4 +1,12 @@
-This is a forked version, containing changes from toombs-caeman's branch (namely `n`, `N` support), option to hide cursor, merged upstream and an updated README.
+About This Fork
+==================================================
+This is a forked version containing:
+* Merged upstream
+* Changes from toombs-caeman's branch (`n`, `N` support)
+* Option to hide cursor
+* Animating extra commands: `H`, `M`, `L`, `{`, `}`
+* Animating `j` and `k` when prefixed with a number
+* Updated README
 
 vim-smoothie: Smooth scrolling for Vim done right🥤
 ===================================================
