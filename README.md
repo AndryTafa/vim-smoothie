@@ -50,8 +50,21 @@ adjusting one or more of the following variables in your `vimrc`:
   Alternatively, you can add extra commands here if you fell extra adventurous
   ;)
 * `g:smoothie_experimental_mappings`: Set this to true to enable additional,
-  experimental mappings (currently `gg` and `G`). It is not recommended to
-  enable them unless you're ready to fight potential bugs.
+  experimental mappings (`gg`, `G`, `n`, `N`). Give them a try!
+* `g:smoothie_update_interval`: (default: `20`) Time (in milliseconds) between subsequent screen/cursor position updates.
+  Lower value produces smoother animation.  Might be useful to increase it
+  when running Vim over low-bandwidth/high-latency connections.
+* `g:smoothie_speed_constant_factor`: (default: `10`) This value controls constant term of the velocity curve. Increasing this
+  boosts primarily cursor speed at the end of animation.
+* `g:smoothie_speed_linear_factor`: (default: `10`) This value controls linear term of the velocity curve. Increasing this
+  boosts primarily cursor speed at the beginning of animation.
+* `g:smoothie_speed_exponentiation_factor`: (default: `0.9`) This value controls exponent of the power function in the velocity curve.
+  Generally should be less or equal to 1.0. Lower values produce longer but
+  perceivably smoother animation.
+* `g:smoothie_redraw_at_finish`: Force screen redraw when the animation is finished, which clears sporadic
+  display artifacts which I encountered f.ex. when scrolling through buffers
+  containing emoji. Enabled by default only if both editor and terminal (kitty)
+  supports doing this in a glitch-free way.
 
 The plugin also respects native Vim settings affecting scrolling behavior, such
 as `scrolloff`, `belloff`, `startofline`, etc.
@@ -74,7 +87,7 @@ popular smooth scrolling plugins I've used in the past: [sexy_scroller.vim],
 
 |  | vim-smoothie | [sexy_scroller.vim] | [comfortable-motion.vim] | [vim-smooth-scroll] |
 |---|:---:|:---:|:---:|:---:|
-| Supported commands | All window scrolling commands (`^D` `^U` `^F` `^B` `zz` `zt` `zb` etc.), `gg`<sup>1</sup> `G`<sup>1</sup> | Almost all window and cursor movement commands ❤️ | `^D` `^U` `^F` `^B` | `^D` `^U` `^F` `^B` |
+| Supported commands | All window scrolling commands (`^D` `^U` `^F` `^B` `zz` `zt` `zb` etc.), `gg`<sup>1</sup> `G`<sup>1</sup> `n`<sup>1</sup> `N`<sup></sup> | Almost all window and cursor movement commands ❤️ | `^D` `^U` `^F` `^B` | `^D` `^U` `^F` `^B` |
 | Erratic screen jumps and jittering now and then | Nope | A lot💔 | Nope | Nope |
 | Scrolling distance is proportional to window height | ✅ | ✅ | ❌ | ✅ |
 | Easing out (soft-stop) | ✅ | ✅ | ✅ | ❌ |
