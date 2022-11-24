@@ -2,6 +2,25 @@
 let smoothie#default_commands = ['<C-D>', '<C-U>', '<C-F>', '<S-Down>', '<PageDown>', '<C-B>', '<S-Up>', '<PageUp>', 'z+', 'z^', 'zt', 'z<CR>', 'z.', 'zz', 'z-', 'zb']
 let smoothie#experimental_commands = ['gg', 'G', 'n', 'N', '#', '*', 'g*', 'g#']
 
+" Highlight group to hide the cursor
+augroup custom_highlight
+autocmd!
+autocmd ColorScheme * highlight SmoothieHiddenCursor gui=reverse blend=100
+augroup END
+highlight SmoothieHiddenCursor gui=reverse blend=100
+
+function! s:hide_cursor() abort
+  if &termguicolors && &guicursor !~# "a:SmoothieHiddenCursor"
+    let s:guicursor=&guicursor
+    set guicursor=a:SmoothieHiddenCursor
+  endif
+endfunction
+function! s:unhide_cursor() abort
+  if &guicursor == "a:SmoothieHiddenCursor"
+    let &guicursor=s:guicursor
+  endif
+endfunction
+
 function! s:editor_supports_fast_redraw() abort
   " Currently enabled only for Neovim, because it causes screen flickering on
   " regular Vim.
@@ -58,6 +77,13 @@ if !exists('g:smoothie_redraw_at_finish')
   let g:smoothie_redraw_at_finish = s:editor_supports_fast_redraw() && s:terminal_supports_fast_redraw()
 endif
 
+if !exists('g:smoothie_hide_cursor')
+  ""
+  " Hide cursor while scrolling
+  " Inspired by Neoscroll 
+  let g:smoothie_hide_cursor = 1
+endif
+
 let s:target_view = {}
 
 let s:subline_progress_view = {}
@@ -69,6 +95,9 @@ let s:animated_view_elements = ['lnum', 'topline']
 " updating the target, when there's a chance we're not already moving.
 function! s:start_moving() abort
   call s:ensure_subline_progress_view_initialized()
+  if g:smoothie_hide_cursor == 1
+    call s:hide_cursor()
+  endif
   if !exists('s:timer_id')
     let s:timer_id = timer_start(g:smoothie_update_interval, function('s:animation_tick'), {'repeat': -1})
     let s:last_tick_time = reltime()
@@ -96,6 +125,9 @@ function! s:finish_moving() abort
   if exists('s:timer_id')
     call timer_stop(s:timer_id)
     unlet s:timer_id
+  endif
+  if g:smoothie_hide_cursor == 1
+    call s:unhide_cursor()
   endif
 endfunction
 
@@ -256,7 +288,7 @@ function! s:update_target(command, count) abort
   return [v:hlsearch, @/, v:searchforward]
 endfunction
 
-function smoothie#do(command)
+function! smoothie#do(command) abort
   let l:search = [v:hlsearch, @/, v:searchforward]
   try
     if v:count == 0
