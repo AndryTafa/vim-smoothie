@@ -53,6 +53,8 @@ adjusting one or more of the following variables in your `vimrc`:
   ;)
 * `g:smoothie_experimental_mappings`: Set this to true to enable additional,
   experimental mappings (`gg`, `G`, `n`, `N`). Give them a try!
+
+The following options were originally removed from the README by psliwka [#22](https://github.com/psliwka/vim-smoothie/issues/22):
 * `g:smoothie_update_interval`: (default: `20`) Time (in milliseconds) between subsequent screen/cursor position updates.
   Lower value produces smoother animation.  Might be useful to increase it
   when running Vim over low-bandwidth/high-latency connections.
