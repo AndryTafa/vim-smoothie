@@ -66,16 +66,16 @@ adjusting one or more of the following variables in your `vimrc`:
 * `g:smoothie_hide_cursor`: (default: `1`) Hide the cursor while scrolling.
 
 The following options were originally removed from the README by psliwka [#22](https://github.com/psliwka/vim-smoothie/issues/22):
-* `g:smoothie_update_interval`: (default: `20`) Time (in milliseconds) between subsequent screen/cursor position updates.
-  Lower value produces smoother animation.  Might be useful to increase it
-  when running Vim over low-bandwidth/high-latency connections.
-* `g:smoothie_speed_constant_factor`: (default: `10`) This value controls constant term of the velocity curve. Increasing this
-  boosts primarily cursor speed at the end of animation.
-* `g:smoothie_speed_linear_factor`: (default: `10`) This value controls linear term of the velocity curve. Increasing this
-  boosts primarily cursor speed at the beginning of animation.
-* `g:smoothie_speed_exponentiation_factor`: (default: `0.9`) This value controls exponent of the power function in the velocity curve.
+* `g:smoothie_speed_linear_factor`: (default: `25`) This value controls linear term of the velocity curve. Increasing this
+  boosts primarily cursor speed at the beginning of animation. **This is likely the first value you'd wanna change to increase scroll speed.**
+* `g:smoothie_speed_exponentiation_factor`: (default: `0.7`) This value controls exponent of the power function in the velocity curve.
   Generally should be less or equal to 1.0. Lower values produce longer but
   perceivably smoother animation.
+* `g:smoothie_speed_constant_factor`: (default: `10`) This value controls constant term of the velocity curve. Increasing this
+  boosts primarily cursor speed at the end of animation.
+* `g:smoothie_update_interval`: (default: `5`) Time (in milliseconds) between subsequent screen/cursor position updates.
+  Lower value produces smoother animation.  Might be useful to increase it
+  when running Vim over low-bandwidth/high-latency connections.
 * `g:smoothie_redraw_at_finish`: Force screen redraw when the animation is finished, which clears sporadic
   display artifacts which I encountered f.ex. when scrolling through buffers
   containing emoji. Enabled by default only if both editor and terminal (kitty)
