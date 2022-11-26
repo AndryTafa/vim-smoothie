@@ -49,14 +49,14 @@ if !exists('g:smoothie_speed_constant_factor')
   ""
   " This value controls constant term of the velocity curve. Increasing this
   " boosts primarily cursor speed at the end of animation.
-  let g:smoothie_speed_constant_factor = 25
+  let g:smoothie_speed_constant_factor = 10
 endif
 
 if !exists('g:smoothie_speed_linear_factor')
   ""
   " This value controls linear term of the velocity curve. Increasing this
   " boosts primarily cursor speed at the beginning of animation.
-  let g:smoothie_speed_linear_factor = 10
+  let g:smoothie_speed_linear_factor = 25
 endif
 
 if !exists('g:smoothie_speed_exponentiation_factor')
