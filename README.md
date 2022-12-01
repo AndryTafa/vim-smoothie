@@ -78,8 +78,7 @@ The following options were originally removed from the README by psliwka [#22](h
   when running Vim over low-bandwidth/high-latency connections.
 * `g:smoothie_redraw_at_finish`: Force screen redraw when the animation is finished, which clears sporadic
   display artifacts which I encountered f.ex. when scrolling through buffers
-  containing emoji. Enabled by default only if both editor and terminal (kitty)
-  supports doing this in a glitch-free way.
+  containing emoji. Disabled by default.
 
 The plugin also respects native Vim settings affecting scrolling behavior, such
 as `scrolloff`, `belloff`, `startofline`, etc.

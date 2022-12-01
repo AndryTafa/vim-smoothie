@@ -20,18 +20,6 @@ function! s:unhide_cursor() abort
   endif
 endfunction
 
-function! s:editor_supports_fast_redraw() abort
-  " Currently enabled only for Neovim, because it causes screen flickering on
-  " regular Vim.
-  return has('nvim')
-endfunction
-
-function! s:terminal_supports_fast_redraw() abort
-  " Currently only Kitty is known not to cause any flickering when calling
-  " `:mode`.
-  return $TERM ==# 'xterm-kitty'
-endfunction
-
 ""
 " Note: the configuration options mentioned there are intentionally hidden
 " from the user, since they're not guaranteed to be backward-compatible with
@@ -42,7 +30,7 @@ if !exists('g:smoothie_update_interval')
   " Time (in milliseconds) between subsequent screen/cursor position updates.
   " Lower value produces smoother animation.  Might be useful to increase it
   " when running Vim over low-bandwidth/high-latency connections.
-  let g:smoothie_update_interval = 10
+  let g:smoothie_update_interval = 5
 endif
 
 if !exists('g:smoothie_speed_constant_factor')
@@ -71,9 +59,8 @@ if !exists('g:smoothie_redraw_at_finish')
   ""
   " Force screen redraw when the animation is finished, which clears sporadic
   " display artifacts which I encountered f.ex. when scrolling through buffers
-  " containing emoji. Enabled by default only if both editor and terminal
-  " supports doing this in a glitch-free way.
-  let g:smoothie_redraw_at_finish = s:editor_supports_fast_redraw() && s:terminal_supports_fast_redraw()
+  " containing emoji. Disabled by default
+  let g:smoothie_redraw_at_finish = 0
 endif
 
 if !exists('g:smoothie_hide_cursor')
