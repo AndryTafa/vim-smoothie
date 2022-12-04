@@ -1,24 +1,6 @@
 
 let smoothie#default_commands = ['<C-D>', '<C-U>', '<C-F>', '<S-Down>', '<PageDown>', '<C-B>', '<S-Up>', '<PageUp>', 'z+', 'z^', 'zt', 'z<CR>', 'z.', 'zz', 'z-', 'zb', 'H', 'M', 'L', '{', '}', 'j', 'k', '<ScrollWheelDown>', '<ScrollWheelUp>', 'gg', 'G', 'n', 'N', '#', '*', 'g*', 'g#']
 
-" Highlight group to hide the cursor
-augroup custom_highlight
-autocmd!
-autocmd ColorScheme * highlight SmoothieHiddenCursor gui=reverse blend=100
-augroup END
-highlight SmoothieHiddenCursor gui=reverse blend=100
-
-function! s:hide_cursor() abort
-  if &termguicolors && &guicursor !~# 'a:SmoothieHiddenCursor'
-    let s:guicursor=&guicursor
-    set guicursor=a:SmoothieHiddenCursor
-  endif
-endfunction
-function! s:unhide_cursor() abort
-  if &guicursor ==# 'a:SmoothieHiddenCursor'
-    let &guicursor=s:guicursor
-  endif
-endfunction
 
 ""
 " Note: the configuration options mentioned there are intentionally hidden
@@ -65,9 +47,9 @@ endif
 
 if !exists('g:smoothie_hide_cursor')
   ""
-  " Hide cursor while scrolling
+  " Hide cursor while scrolling, only supported in Neovim
   " Inspired by Neoscroll 
-  let g:smoothie_hide_cursor = 1
+  let g:smoothie_hide_cursor = has('nvim')
 endif
 
 let s:target_view = {}
@@ -75,6 +57,27 @@ let s:target_view = {}
 let s:subline_progress_view = {}
 
 let s:animated_view_elements = ['lnum', 'topline']
+
+" Highlight group to hide the cursor
+if g:smoothie_hide_cursor
+  augroup custom_highlight
+  autocmd!
+  autocmd ColorScheme * highlight SmoothieHiddenCursor gui=reverse blend=100
+  augroup END
+  highlight SmoothieHiddenCursor gui=reverse blend=100
+endif
+
+function! s:hide_cursor() abort
+  if &termguicolors && &guicursor !~# 'a:SmoothieHiddenCursor'
+    let s:guicursor=&guicursor
+    set guicursor=a:SmoothieHiddenCursor
+  endif
+endfunction
+function! s:unhide_cursor() abort
+  if &guicursor ==# 'a:SmoothieHiddenCursor'
+    let &guicursor=s:guicursor
+  endif
+endfunction
 
 ""
 " Start the animation timer if not already running.  Should be called when

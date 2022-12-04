@@ -63,7 +63,7 @@ adjusting one or more of the following variables in your `vimrc`:
   ;)
 
   Default list of enabled mappings: `['<C-D>', '<C-U>', '<C-F>', '<S-Down>', '<PageDown>', '<C-B>', '<S-Up>', '<PageUp>', 'z+', 'z^', 'zt', 'z<CR>', 'z.', 'zz', 'z-', 'zb', 'H', 'M', 'L', '{', '}', 'j', 'k', '<ScrollWheelDown>', '<ScrollWheelUp>', 'gg', 'G', 'n', 'N', '#', '*', 'g*', 'g#']`
-* `g:smoothie_hide_cursor`: (default: `1`) Hide the cursor while scrolling.
+* `g:smoothie_hide_cursor`: (default: `1` for Neovim, `0` for Vim) Hide the cursor while scrolling. Only supported in Neovim
 
 The following options were originally removed from the README by psliwka [#22](https://github.com/psliwka/vim-smoothie/issues/22):
 * `g:smoothie_speed_linear_factor`: (default: `25`) This value controls linear term of the velocity curve. Increasing this
