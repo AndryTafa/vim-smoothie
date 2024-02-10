@@ -118,6 +118,9 @@ function! s:finish_moving() abort
   if g:smoothie_hide_cursor == 1
     call s:unhide_cursor()
   endif
+
+  " Added line to center the cursor
+  normal! zz
 endfunction
 
 ""
